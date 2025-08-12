@@ -28,7 +28,10 @@ impl Date {
             println!("Error: Failed to parse date: [{date}].");
             return None;
         }
-        let year = year.unwrap().parse::<i32>().unwrap();
+        let mut year = year.unwrap().parse::<i32>().unwrap();
+        if year < 100 {
+            year += 2000;
+        }
         let month = month.unwrap().parse::<u32>().unwrap();
         let day = day.unwrap().parse::<u32>().unwrap();
         Some(Self { year, month, day })
@@ -76,7 +79,7 @@ impl Command {
                     return Some(Command::Edit(get_today()));
                 }
                 Some(Command::Edit(input[1].clone()))
-            },
+            }
             "--help" | "-h" => Some(Command::Help),
             "--version" | "-v" => Some(Command::Version),
             _ => None,
@@ -164,15 +167,12 @@ fn print_help() {
 }
 
 fn print_version() {
-    println!(
-        "punch version v{VERSION}",
-    );
+    println!("punch version v{VERSION}",);
 }
 
-fn edit(input_date: String) {
+fn edit(_input_date: String) {
     // TODO: This does not work! Unfinished.
-    return;
-
+/*
     let date = Date::new(&input_date);
     if date.is_none() {
         println!("Error: Failed to parse date: [{input_date}].");
@@ -181,7 +181,10 @@ fn edit(input_date: String) {
     let date = date.unwrap();
     let full_path = date.get_file_path_for_date();
     if full_path.is_none() {
-        println!("Error: No report file for the provided date [{}-{}-{}].", date.year, date.month, date.day);
+        println!(
+            "Error: No report file for the provided date [{}-{}-{}].",
+            date.year, date.month, date.day
+        );
         return;
     }
     let full_path = full_path.unwrap();
@@ -195,6 +198,7 @@ fn edit(input_date: String) {
             "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
         );
     }
+*/
 }
 
 fn print_report_for_date(input_date: String) {
@@ -206,7 +210,10 @@ fn print_report_for_date(input_date: String) {
     let date = date.unwrap();
     let full_path = date.get_file_path_for_date();
     if full_path.is_none() {
-        println!("Error: No report file for the provided date [{}-{}-{}].", date.year, date.month, date.day);
+        println!(
+            "Error: No report file for the provided date [{}-{}-{}].",
+            date.year, date.month, date.day
+        );
         return;
     }
     let full_path = full_path.unwrap();
@@ -232,7 +239,10 @@ fn print_report_for_date(input_date: String) {
             }
         }
         Err(e) => {
-            println!("Error: No report found for [{}-{}-{}]: [{e}]!", date.year, date.month, date.day);
+            println!(
+                "Error: No report found for [{}-{}-{}]: [{e}]!",
+                date.year, date.month, date.day
+            );
         }
     }
 }

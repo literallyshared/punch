@@ -4,14 +4,21 @@ mod tests {
 
     #[test]
     fn date_creation() {
-        let good_input = "2025-05-05".to_string();
+        let good_input = [
+            "2025-05-05".to_string(),
+            "25-05-05".to_string(),
+        ];
         let bad_input = "204a,-43".to_string();
-        assert!(Date::new(&good_input).is_some());
+        for input in good_input.iter() {
+            assert!(Date::new(input).is_some());
+        }
         assert!(Date::new(&bad_input).is_none());
-        assert_eq!(
-            format!("{}/{DIRECTORY}/2025/May/2025-05-05", std::env::var("HOME").unwrap()),
-            Date::new(&good_input).unwrap().get_file_path_for_date().unwrap()
-        );
+        for input in good_input {
+            assert_eq!(
+                format!("{}/{DIRECTORY}/2025/May/2025-05-05", std::env::var("HOME").unwrap()),
+                Date::new(&input).unwrap().get_file_path_for_date().unwrap()
+            );
+        }
     }
 
     #[test]
