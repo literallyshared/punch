@@ -1,3 +1,4 @@
+use editor_command::EditorBuilder;
 use itertools::Itertools;
 use simple_duration::Duration;
 use std::collections::HashMap;
@@ -170,35 +171,34 @@ fn print_version() {
     println!("punch version v{VERSION}",);
 }
 
-fn edit(_input_date: String) {
-    // TODO: This does not work! Unfinished.
-    /*
-        let date = Date::new(&input_date);
-        if date.is_none() {
-            println!("Error: Failed to parse date: [{input_date}].");
-            return;
-        }
-        let date = date.unwrap();
-        let full_path = date.get_file_path_for_date();
-        if full_path.is_none() {
-            println!(
-                "Error: No report file for the provided date [{}-{}-{}].",
-                date.year, date.month, date.day
-            );
-            return;
-        }
-        let full_path = full_path.unwrap();
-        if let Ok(editor) = std::env::var("EDITOR") {
-            std::process::Command::new(editor)
-                .args([full_path])
-                .output()
-                .expect("Failed to edit time report.");
-        } else {
-            println!(
-                "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
-            );
-        }
-    */
+fn edit(input_date: String) {
+    let date = Date::new(&input_date);
+    if date.is_none() {
+        println!("Error: Failed to parse date: [{input_date}].");
+        return;
+    }
+    let date = date.unwrap();
+    let full_path = date.get_file_path_for_date();
+    if full_path.is_none() {
+        println!(
+            "Error: No report file for the provided date [{}-{}-{}].",
+            date.year, date.month, date.day
+        );
+        return;
+    }
+    let full_path = full_path.unwrap();
+    let mut command = EditorBuilder::edit_file(full_path).unwrap();
+    command.status().unwrap();
+    /*if let Ok(editor) = std::env::var("EDITOR") {
+        std::process::Command::new(editor)
+            .args([full_path])
+            .output()
+            .expect("Failed to edit time report.");
+    } else {
+        println!(
+            "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
+        );
+    }*/
 }
 
 fn print_report_for_date(input_date: String) {
