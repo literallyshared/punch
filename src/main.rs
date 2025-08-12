@@ -172,33 +172,33 @@ fn print_version() {
 
 fn edit(_input_date: String) {
     // TODO: This does not work! Unfinished.
-/*
-    let date = Date::new(&input_date);
-    if date.is_none() {
-        println!("Error: Failed to parse date: [{input_date}].");
-        return;
-    }
-    let date = date.unwrap();
-    let full_path = date.get_file_path_for_date();
-    if full_path.is_none() {
-        println!(
-            "Error: No report file for the provided date [{}-{}-{}].",
-            date.year, date.month, date.day
-        );
-        return;
-    }
-    let full_path = full_path.unwrap();
-    if let Ok(editor) = std::env::var("EDITOR") {
-        std::process::Command::new(editor)
-            .args([full_path])
-            .output()
-            .expect("Failed to edit time report.");
-    } else {
-        println!(
-            "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
-        );
-    }
-*/
+    /*
+        let date = Date::new(&input_date);
+        if date.is_none() {
+            println!("Error: Failed to parse date: [{input_date}].");
+            return;
+        }
+        let date = date.unwrap();
+        let full_path = date.get_file_path_for_date();
+        if full_path.is_none() {
+            println!(
+                "Error: No report file for the provided date [{}-{}-{}].",
+                date.year, date.month, date.day
+            );
+            return;
+        }
+        let full_path = full_path.unwrap();
+        if let Ok(editor) = std::env::var("EDITOR") {
+            std::process::Command::new(editor)
+                .args([full_path])
+                .output()
+                .expect("Failed to edit time report.");
+        } else {
+            println!(
+                "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
+            );
+        }
+    */
 }
 
 fn print_report_for_date(input_date: String) {
@@ -321,19 +321,4 @@ fn parse_report_file(contents: &str) -> Option<Report> {
         }
     }
     Some(Report { activities })
-}
-
-fn parse_date_argument(date: String) -> Option<String> {
-    let mut split = date.split('-');
-    let year = split.next();
-    let month = split.next();
-    let day = split.next();
-    if year.is_none() || month.is_none() || day.is_none() {
-        println!("Error: Failed to parse date: [{date}].");
-        return None;
-    }
-    let year = year.unwrap().parse::<i32>().unwrap();
-    let month = month.unwrap().parse::<u32>().unwrap();
-    let day = day.unwrap().parse::<u32>().unwrap();
-    get_file_path_for_date(year, month, day)
 }
