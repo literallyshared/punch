@@ -125,6 +125,7 @@ fn print_help() {
 }
 
 fn print_version() {
+    println!("punch version v{}", std::env::var("CARGO_PKG_VERSION").unwrap());
 }
 
 fn print_report_for_date(date: String) {
