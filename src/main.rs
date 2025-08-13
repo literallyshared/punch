@@ -22,17 +22,19 @@ pub struct Date {
 impl Date {
     pub fn new(date: &String) -> Option<Self> {
         let mut split = date.split('-');
-        let year = split.next();
+        let mut year = split.next();
         let month = split.next();
         let day = split.next();
         if year.is_none() || month.is_none() || day.is_none() {
             println!("Error: Failed to parse date: [{date}].");
             return None;
         }
-        let mut year = year.unwrap().parse::<i32>().unwrap();
-        if year < 100 {
-            year += 2000;
+        let mut year = year.unwrap().to_string();
+        if year.len() == 2 {
+            year.insert_str(0, "20");
         }
+
+        let year = year.parse::<i32>().unwrap();
         let month = month.unwrap().parse::<u32>().unwrap();
         let day = day.unwrap().parse::<u32>().unwrap();
         Some(Self { year, month, day })
