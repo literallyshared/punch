@@ -22,7 +22,7 @@ pub struct Date {
 impl Date {
     pub fn new(date: &String) -> Option<Self> {
         let mut split = date.split('-');
-        let mut year = split.next();
+        let year = split.next();
         let month = split.next();
         let day = split.next();
         if year.is_none() || month.is_none() || day.is_none() {
@@ -102,7 +102,6 @@ fn main() {
             Command::Help => print_help(),
             Command::Edit(date) => edit(date),
             Command::Version => print_version(),
-            _ => {}
         }
     } else {
         print_help();
@@ -295,7 +294,7 @@ fn get_file_path_for_date(year: i32, month: u32, day: u32) -> Option<String> {
         return Some(full_path);
     }
     println!("Error: Failed to parse date from: [{year}-{month}-{day}].");
-    return None;
+    None
 }
 
 fn get_todays_file_path() -> String {
