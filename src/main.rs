@@ -1,3 +1,4 @@
+use chrono::Timelike;
 use editor_command::EditorBuilder;
 use itertools::Itertools;
 use simple_duration::Duration;
@@ -26,7 +27,6 @@ impl Date {
         let month = split.next();
         let day = split.next();
         if year.is_none() || month.is_none() || day.is_none() {
-            println!("Error: Failed to parse date: [{date}].");
             return None;
         }
         let mut year = year.unwrap().to_string();
@@ -161,7 +161,7 @@ fn print_help() {
     in              enables tracking time for the current day. Always start with this.
     out [arg]       registers elapsed time since last punch in until [now] as activity [arg].
     report          print a report for the current date.
-    report [arg]    print a report for the provided date, e.g. "punch report 25-08-31".
+    report [arg]    print a report for the provided date, e.g. "punch report 25-08-31" (YY-mm-dd).
     --help -h       shows this instruction.
     --version -v    shows the current version of punch.
     "#;
@@ -175,7 +175,7 @@ fn print_version() {
 fn edit(input_date: String) {
     let date = Date::new(&input_date);
     if date.is_none() {
-        println!("Error: Failed to parse date: [{input_date}].");
+        print_help();
         return;
     }
     let date = date.unwrap();
@@ -313,17 +313,23 @@ fn parse_report_file(contents: &str) -> Option<Report> {
         let start = split.next();
         let _ = split.next(); // '-'
         let end = split.next();
-        if start.is_none() || end.is_none() {
+        if start.is_none() {
             continue;
         }
         let start = start.unwrap();
-        let end = end.unwrap();
-        if start.is_empty() || end.is_empty() {
+        if start.is_empty() {
             continue;
         }
-        let activity = split.collect::<String>();
         let start = Duration::parse(&format!("{start}:00")).unwrap();
-        let end = Duration::parse(&format!("{end}:00")).unwrap();
+        let end = if end.is_none() {
+            Duration::from_seconds(chrono::Local::now().num_seconds_from_midnight() as u64)
+        } else {
+            Duration::parse(&format!("{}:00", end.unwrap())).unwrap()
+        };
+        let mut activity = split.collect::<String>();
+        if activity.is_empty() {
+            activity = "*Current*".to_string();
+        }
         if let Some(value) = activities.get_mut(&activity) {
             *value += end.as_seconds() - start.as_seconds();
         } else {
