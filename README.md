@@ -1,6 +1,6 @@
 # Punch
 
-Punch is a punch clock for your terminal. Punch in. Punch out. Track your time for time tracking, billing, etc.
+Punch is a punch clock for your terminal. Punch in. Punch out. Track your time for your biling, time reporting, etc.
 ## Installation
 
 ```
