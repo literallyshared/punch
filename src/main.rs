@@ -118,6 +118,10 @@ fn punch_in() {
         } else {
             "".to_string()
         };
+        if contents.ends_with(' ') {
+            println!("You need to punch out first! See punch --help.");
+            return;
+        }
         let stamp = chrono::Local::now().format("%R");
         let to_be_written = if contents.is_empty() {
             format!("{contents}{stamp} - ")
@@ -138,7 +142,7 @@ fn punch_out(maybe_activity: Option<String>) {
             return;
         }
     }
-    let activity = maybe_activity.unwrap_or("Unknown activity".to_string());
+    let activity = maybe_activity.unwrap_or("Unknown".to_string());
     if let Ok(contents) = std::fs::read(&full_path) {
         let contents = str::from_utf8(&contents).unwrap();
         if contents.ends_with('-') {
