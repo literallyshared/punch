@@ -169,7 +169,7 @@ fn print_help() {
 }
 
 fn print_version() {
-    println!("punch version v{VERSION}",);
+    println!("punch version {VERSION}",);
 }
 
 fn edit(input_date: String) {
