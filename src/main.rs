@@ -149,6 +149,7 @@ fn punch_out(maybe_activity: Option<String>) {
             println!("Error: You have not punched in yet!");
             return;
         }
+        // TODO: detect multiple uses of 'punch out'
         let stamp = chrono::Local::now().format("%R");
         let appended = format!("{contents}{stamp} {activity}");
         if std::fs::write(&full_path, appended).is_err() {
