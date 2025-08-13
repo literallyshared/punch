@@ -188,7 +188,9 @@ fn edit(input_date: String) {
     }
     let full_path = full_path.unwrap();
     let mut command = EditorBuilder::edit_file(full_path).unwrap();
-    command.status().expect("Failed to execute edit command. Is your $EDITOR set?");
+    command
+        .status()
+        .expect("Failed to execute edit command. Is your $EDITOR set?");
 }
 
 fn print_report_for_date(input_date: String) {
@@ -212,7 +214,7 @@ fn print_report_for_date(input_date: String) {
         Ok(contents) => {
             if let Ok(contents) = str::from_utf8(&contents) {
                 if let Some(report) = parse_report_file(contents) {
-                    println!("--- [{}-{}-{}] ---", date.year, date.month, date.day);
+                    println!("--- [{}-{}-{}] ---\n", date.year, date.month, date.day);
                     for activity in report.activities.keys().sorted() {
                         if let Some(duration) = chrono::Duration::new(
                             *report.activities.get(activity).unwrap() as i64,
@@ -221,9 +223,22 @@ fn print_report_for_date(input_date: String) {
                             println!(
                                 "[{activity}]: {} hours, {} minutes.",
                                 duration.num_hours(),
-                                duration.num_minutes() % 60
+                                duration.num_minutes() % 60,
                             );
                         }
+                    }
+                    let total = report
+                        .activities
+                        .values()
+                        .collect::<Vec<&u64>>()
+                        .into_iter()
+                        .sum::<u64>();
+                    if let Some(duration) = chrono::Duration::new(total as i64, 0) {
+                        println!(
+                            "\nTotal: {} hours {} minutes.",
+                            duration.num_hours(),
+                            duration.num_minutes() % 60,
+                        );
                     }
                 }
             }
