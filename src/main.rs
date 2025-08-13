@@ -188,17 +188,7 @@ fn edit(input_date: String) {
     }
     let full_path = full_path.unwrap();
     let mut command = EditorBuilder::edit_file(full_path).unwrap();
-    command.status().unwrap();
-    /*if let Ok(editor) = std::env::var("EDITOR") {
-        std::process::Command::new(editor)
-            .args([full_path])
-            .output()
-            .expect("Failed to edit time report.");
-    } else {
-        println!(
-            "No default editor configured. Please ensure that the enviroment variable 'EDITOR' is set to your preferred editor."
-        );
-    }*/
+    command.status().expect("Failed to execute edit command. Is your $EDITOR set?");
 }
 
 fn print_report_for_date(input_date: String) {
@@ -311,6 +301,10 @@ fn parse_report_file(contents: &str) -> Option<Report> {
         }
         let start = start.unwrap();
         let end = end.unwrap();
+        if start.is_empty() || end.is_empty() {
+            println!("Nothing to report so far!");
+            return None;
+        }
         let activity = split.collect::<String>();
         let start = Duration::parse(&format!("{start}:00")).unwrap();
         let end = Duration::parse(&format!("{end}:00")).unwrap();
