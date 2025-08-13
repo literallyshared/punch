@@ -3,7 +3,7 @@
 Punch is a punch clock for your terminal. Punch in. Punch out. Track your time for your biling, time reporting, etc.
 ## Installation
 
-```
+```bash
 cargo build --release
 sudo ./install.sh
 ```
@@ -12,42 +12,42 @@ sudo ./install.sh
 
 Start your day:
 
-```
+```bash
 punch in
 ```
 
 Finish a task:
 
-```
+```bash
 punch out "Working on something"
 ```
 
 Now you have a time card in ~/.punch/<YEAR>/<MONTH>/<YY-mm-dd> with a time registered as "Working on something" between the two time stamps punching in and out.
 
-```
+```bash
 punch out
 ```
 
 Punching out without an argument warns you and gives you a placeholder activity. You should use the edit functionality to properly reflect what you were working on:
 
-```
+```bash
 punch edit
 ```
 
 Launches your $EDITOR and lets you edit the current day.
 Providing a date to the edit command lets you edit a specific day:
 
-```
+```bash
 punch edit 25-08-04
 ```
 
 The report command can be used to see the time spent on different tasks during the day.
 
-```
+```bash
 punch report
 ```
 Prints a report for the current day:
-```
+```bash
 --- 2025-8-31 ---
 [Activity A]: 4 hours 21 minutes.
 [Activity B]: 2 hours 30 minutes.
@@ -56,7 +56,7 @@ Total: 6 hours 51 minutes.
 ```
 
 To see a report for a given day:
-```
+```bash
 punch report YY-mm-dd
 ```
 
