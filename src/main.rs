@@ -241,12 +241,14 @@ fn print_report_for_date(input_date: String) {
                             duration.num_minutes() % 60,
                         );
                     }
+                } else {
+                    println!("Nothing to report so far!");
                 }
             }
         }
-        Err(e) => {
+        Err(_) => {
             println!(
-                "Error: No report found for [{}-{}-{}]: [{e}]!",
+                "No report found for [{}-{}-{}].",
                 date.year, date.month, date.day
             );
         }
@@ -312,14 +314,12 @@ fn parse_report_file(contents: &str) -> Option<Report> {
         let _ = split.next(); // '-'
         let end = split.next();
         if start.is_none() || end.is_none() {
-            println!("Error: Failed to parse report file: [{start:?}] - [{end:?}]");
-            return None;
+            continue;
         }
         let start = start.unwrap();
         let end = end.unwrap();
         if start.is_empty() || end.is_empty() {
-            println!("Nothing to report so far!");
-            return None;
+            continue;
         }
         let activity = split.collect::<String>();
         let start = Duration::parse(&format!("{start}:00")).unwrap();
