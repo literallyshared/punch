@@ -21,7 +21,7 @@ pub struct Date {
 }
 
 impl Date {
-    pub fn new(date: &String) -> Option<Self> {
+    pub fn new(date: &str) -> Option<Self> {
         let mut split = date.split('-');
         let year = split.next();
         let month = split.next();
@@ -126,7 +126,6 @@ fn punch_in() {
         };
         if std::fs::write(&full_path, to_be_written).is_err() {
             println!("Error: Failed to create report file for [{}].", get_today());
-            return;
         }
     }
 }
@@ -150,7 +149,6 @@ fn punch_out(maybe_activity: Option<String>) {
         let appended = format!("{contents}{stamp} {activity}");
         if std::fs::write(&full_path, appended).is_err() {
             println!("Error: Failed to modify report file for [{}].", get_today());
-            return;
         }
     }
 }
@@ -263,7 +261,6 @@ fn try_create_directory(directory: String) {
             }
             if std::fs::create_dir_all(&directory).is_err() {
                 println!("Error: Failed to create [{directory}]");
-                return;
             }
         }
         Err(e) => {
