@@ -3,7 +3,7 @@
 Punch is a punch clock for your terminal. Punch in. Punch out. Track your time for your biling, time reporting, etc.
 ## Installation
 
-```bash
+```console
 cargo build --release
 sudo ./install.sh
 ```
