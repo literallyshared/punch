@@ -22,7 +22,7 @@ Finish a task:
 punch out "Working on something"
 ```
 
-Now you have a time card in ~/.punch/<YEAR>/<MONTH>/<YY-mm-dd> with a time registered as "Working on something" between the two time stamps punching in and out.
+Now you have a time card in ~/.punch/[YEAR]/[MONTH]/[YY-mm-dd] with a time registered as "Working on something" between the two time stamps punching in and out.
 
 ```console
 punch out
