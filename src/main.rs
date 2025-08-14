@@ -118,7 +118,7 @@ fn punch_in() {
         } else {
             "".to_string()
         };
-        if contents.ends_with(' ') {
+        if contents.ends_with(' ') || contents.ends_with('-') {
             println!("You need to punch out first! See punch --help.");
             return;
         }
@@ -145,13 +145,16 @@ fn punch_out(maybe_activity: Option<String>) {
     let activity = maybe_activity.unwrap_or("Unknown".to_string());
     if let Ok(contents) = std::fs::read(&full_path) {
         let contents = str::from_utf8(&contents).unwrap();
-        if contents.ends_with('-') {
+        if !(contents.ends_with('-') || contents.ends_with(' ')) {
             println!("Error: You have not punched in yet!");
             return;
         }
-        // TODO: detect multiple uses of 'punch out'
+        if contents.ends_with(']') {
+            println!("You are already punched out! See punch --help.");
+            return;
+        }
         let stamp = chrono::Local::now().format("%R");
-        let appended = format!("{contents}{stamp} {activity}");
+        let appended = format!("{contents}{stamp} [{activity}]");
         if std::fs::write(&full_path, appended).is_err() {
             println!("Error: Failed to modify report file for [{}].", get_today());
         }
@@ -225,7 +228,7 @@ fn print_report_for_date(input_date: String) {
                             0,
                         ) {
                             println!(
-                                "[{activity}]: {} hours, {} minutes.",
+                                "{activity}: {} hours, {} minutes.",
                                 duration.num_hours(),
                                 duration.num_minutes() % 60,
                             );
