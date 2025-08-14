@@ -311,7 +311,7 @@ fn parse_report_file(contents: &str) -> Option<Report> {
         if line.is_empty() {
             continue;
         }
-        let mut split = line.split(' ');
+        let mut split = line.splitn(4, ' ');
         let start = split.next();
         let _ = split.next(); // '-'
         let end = split.next();
