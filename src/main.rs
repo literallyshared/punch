@@ -323,10 +323,15 @@ fn parse_report_file(contents: &str) -> Option<Report> {
             continue;
         }
         let start = Duration::parse(&format!("{start}:00")).unwrap();
-        let end = if end.is_none() {
+        // HACK: for some reason 'end' is always 'Some'... fix this
+        if end.is_none() {
+            continue;
+        }
+        let end = end.unwrap().trim();
+        let end = if end.is_empty() {
             Duration::from_seconds(chrono::Local::now().num_seconds_from_midnight() as u64)
         } else {
-            Duration::parse(&format!("{}:00", end.unwrap())).unwrap()
+            Duration::parse(&format!("{end}:00")).unwrap()
         };
         let mut activity = split.collect::<String>();
         if activity.is_empty() {
