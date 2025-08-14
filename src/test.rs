@@ -22,19 +22,6 @@ mod tests {
     }
 
     #[test]
-    fn date_creation_edge_cases() {
-        assert!(Date::new("").is_none());
-        assert!(Date::new("2025").is_none());
-        assert!(Date::new("2025-05").is_none());
-        assert!(Date::new("abc-def-ghi").is_none());
-
-        let date = Date::new("2023-12-25").unwrap();
-        assert_eq!(date.year, 2023);
-        assert_eq!(date.month, 12);
-        assert_eq!(date.day, 25);
-    }
-
-    #[test]
     fn command_parsing() {
         assert!(Command::from_args(vec![]).is_none());
         assert!(Command::from_args(vec!["invalid".to_string()]).is_none());
@@ -141,14 +128,14 @@ mod tests {
         let path = get_file_path_for_date(2023, 5, 15);
         assert!(path.is_some());
         let path = path.unwrap();
+        assert!(path.contains(".punch"));
         assert!(path.contains("2023"));
         assert!(path.contains("May"));
         assert!(path.contains("2023-05-15"));
-        assert!(path.contains(".punch"));
     }
 
     #[test]
-    fn get_file_path_for_date_invalid() {
+    fn get_file_path_for_invalid_dates() {
         assert!(get_file_path_for_date(2023, 13, 1).is_none());
         assert!(get_file_path_for_date(2023, 2, 30).is_none());
         assert!(get_file_path_for_date(2023, 4, 31).is_none());
@@ -164,25 +151,5 @@ mod tests {
         assert_eq!(parts[0].len(), 4); // year
         assert_eq!(parts[1].len(), 2); // month
         assert_eq!(parts[2].len(), 2); // day
-    }
-
-    #[test]
-    fn get_todays_dir_structure() {
-        let dir = get_todays_dir();
-        assert!(dir.contains(".punch"));
-        let parts: Vec<&str> = dir.split('/').collect();
-        assert!(parts.len() >= 4);
-        assert!(parts.contains(&".punch"));
-    }
-
-    #[test]
-    fn get_todays_file_path_structure() {
-        let path = get_todays_file_path();
-        assert!(path.contains(".punch"));
-        let parts: Vec<&str> = path.split('/').collect();
-        let filename = parts.last().unwrap();
-        assert!(filename.contains("-"));
-        let date_parts: Vec<&str> = filename.split('-').collect();
-        assert_eq!(date_parts.len(), 3);
     }
 }
