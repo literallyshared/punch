@@ -34,9 +34,9 @@ impl Date {
             year.insert_str(0, "20");
         }
 
-        let year = year.parse::<i32>().unwrap();
-        let month = month.unwrap().parse::<u32>().unwrap();
-        let day = day.unwrap().parse::<u32>().unwrap();
+        let year = year.parse::<i32>().ok()?;
+        let month = month.unwrap().parse::<u32>().ok()?;
+        let day = day.unwrap().parse::<u32>().ok()?;
         Some(Self { year, month, day })
     }
 
