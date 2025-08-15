@@ -2,7 +2,7 @@ use chrono::Timelike;
 use editor_command::EditorBuilder;
 use itertools::Itertools;
 use simple_duration::Duration;
-use std::collections::HashMap;
+use std::{collections::HashMap, io::Read};
 
 mod test;
 
@@ -110,24 +110,13 @@ fn main() {
 
 fn punch_in() {
     let full_path = get_todays_file_path();
-    if let Ok(exists) = std::fs::exists(&full_path) {
-        let contents = if exists {
-            str::from_utf8(&std::fs::read(&full_path).unwrap())
-                .unwrap()
-                .to_string()
-        } else {
-            "".to_string()
-        };
-        if contents.ends_with(' ') || contents.ends_with('-') {
+    if let Some(contents) = read_report_content_for_date(get_today()) {
+        if contents.ends_with('-') {
             println!("You need to punch out first! See punch --help.");
             return;
         }
         let stamp = chrono::Local::now().format("%R");
-        let to_be_written = if contents.is_empty() {
-            format!("{contents}{stamp} - ")
-        } else {
-            format!("{contents}\n{stamp} - ")
-        };
+        let to_be_written = format!("{contents}{stamp} -");
         if std::fs::write(&full_path, to_be_written).is_err() {
             println!("Error: Failed to create report file for [{}].", get_today());
         }
@@ -143,9 +132,10 @@ fn punch_out(maybe_activity: Option<String>) {
         }
     }
     let activity = maybe_activity.unwrap_or("Unknown".to_string());
-    if let Ok(contents) = std::fs::read(&full_path) {
-        let contents = str::from_utf8(&contents).unwrap();
-        if !(contents.ends_with('-') || contents.ends_with(' ')) {
+    if let Some(contents) = read_report_content_for_date(get_today()) {
+        let split: Vec<&str> = contents.split('\n').collect();
+        println!("{split:?}");
+        if contents.is_empty() || (split.last().is_some() && split.last().unwrap().is_empty()) {
             println!("Error: You have not punched in yet!");
             return;
         }
@@ -154,7 +144,7 @@ fn punch_out(maybe_activity: Option<String>) {
             return;
         }
         let stamp = chrono::Local::now().format("%R");
-        let appended = format!("{contents}{stamp} [{activity}]");
+        let appended = format!("{contents} {stamp} [{activity}]\n");
         if std::fs::write(&full_path, appended).is_err() {
             println!("Error: Failed to modify report file for [{}].", get_today());
         }
@@ -199,7 +189,11 @@ fn edit(input_date: String) {
         .status()
         .expect("Failed to execute edit command. Is your $EDITOR set?");
 }
-
+/*
+07:47 - 10:00 [On-boarding]
+10:00 - 12:00 [Gyros - Algo integration draft plan]
+12:15 -
+* */
 fn print_report_for_date(input_date: String) {
     let date = Date::new(&input_date);
     if date.is_none() {
@@ -259,6 +253,30 @@ fn print_report_for_date(input_date: String) {
             );
         }
     }
+}
+
+fn read_report_content_for_date(input_date: String) -> Option<String> {
+    let date = Date::new(&input_date);
+    if date.is_none() {
+        println!("Error: Failed to parse date: [{input_date}].");
+        return None;
+    }
+    let date = date.unwrap();
+    let full_path = date.get_file_path_for_date();
+    if full_path.is_none() {
+        println!(
+            "Error: No report file for the provided date [{}-{}-{}].",
+            date.year, date.month, date.day
+        );
+        return None;
+    }
+    let full_path = full_path.unwrap();
+    if let Ok(mut file) = std::fs::File::open(full_path) {
+        let mut contents = String::new();
+        let _ = file.read_to_string(&mut contents);
+        return Some(contents);
+    }
+    None
 }
 
 fn try_create_directory(directory: String) {
@@ -326,19 +344,14 @@ fn parse_report_file(contents: &str) -> Option<Report> {
             continue;
         }
         let start = Duration::parse(&format!("{start}:00")).unwrap();
-        // HACK: for some reason 'end' is always 'Some'... fix this
-        if end.is_none() {
-            continue;
-        }
-        let end = end.unwrap().trim();
-        let end = if end.is_empty() {
-            Duration::from_seconds(chrono::Local::now().num_seconds_from_midnight() as u64)
-        } else {
+        let end = if let Some(end) = end {
             Duration::parse(&format!("{end}:00")).unwrap()
+        } else {
+            Duration::from_seconds(chrono::Local::now().num_seconds_from_midnight() as u64)
         };
         let mut activity = split.collect::<String>();
         if activity.is_empty() {
-            activity = "*Current*".to_string();
+            activity = "[*Current*]".to_string();
         }
         if let Some(value) = activities.get_mut(&activity) {
             *value += end.as_seconds() - start.as_seconds();

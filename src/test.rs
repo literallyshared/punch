@@ -97,10 +97,10 @@ mod tests {
 
     #[test]
     fn report_parsing_current_activity() {
-        let input = "08:00 - ";
+        let input = "08:00 -";
         let report = parse_report_file(input).unwrap();
         assert_eq!(report.activities.len(), 1);
-        assert!(report.activities.contains_key("*Current*"));
+        assert!(report.activities.contains_key("[*Current*]"));
     }
 
     #[test]
