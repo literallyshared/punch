@@ -2,7 +2,7 @@ use chrono::Timelike;
 use editor_command::EditorBuilder;
 use itertools::Itertools;
 use simple_duration::Duration;
-use std::{collections::HashMap, io::Read};
+use std::{collections::HashMap, fs::OpenOptions, io::{Read, Write}, os::unix::fs::OpenOptionsExt};
 
 mod test;
 
@@ -110,17 +110,14 @@ fn main() {
 
 fn punch_in() {
     let full_path = get_todays_file_path();
-    if let Some(contents) = read_report_content_for_date(get_today()) {
-        if contents.ends_with('-') {
-            println!("You need to punch out first! See punch --help.");
-            return;
-        }
-        let stamp = chrono::Local::now().format("%R");
-        let to_be_written = format!("{contents}{stamp} -");
-        if std::fs::write(&full_path, to_be_written).is_err() {
-            println!("Error: Failed to create report file for [{}].", get_today());
-        }
+    let contents = read_report_content_for_date(get_today()).unwrap_or(String::new());
+    if contents.ends_with('-') {
+        println!("You need to punch out first! See punch --help.");
+        return;
     }
+    let stamp = chrono::Local::now().format("%R");
+    let to_be_written = format!("{contents}{stamp} -");
+    create_and_write_to_file(&full_path, &to_be_written);
 }
 
 fn punch_out(maybe_activity: Option<String>) {
@@ -133,21 +130,19 @@ fn punch_out(maybe_activity: Option<String>) {
     }
     let activity = maybe_activity.unwrap_or("Unknown".to_string());
     if let Some(contents) = read_report_content_for_date(get_today()) {
-        let split: Vec<&str> = contents.split('\n').collect();
-        println!("{split:?}");
+        let mut split: Vec<&str> = contents.split('\n').collect();
+        split.pop();
         if contents.is_empty() || (split.last().is_some() && split.last().unwrap().is_empty()) {
             println!("Error: You have not punched in yet!");
             return;
         }
-        if contents.ends_with(']') {
+        if contents.trim().ends_with(']') {
             println!("You are already punched out! See punch --help.");
             return;
         }
         let stamp = chrono::Local::now().format("%R");
         let appended = format!("{contents} {stamp} [{activity}]\n");
-        if std::fs::write(&full_path, appended).is_err() {
-            println!("Error: Failed to modify report file for [{}].", get_today());
-        }
+        create_and_write_to_file(&full_path, &appended);
     }
 }
 
@@ -189,11 +184,7 @@ fn edit(input_date: String) {
         .status()
         .expect("Failed to execute edit command. Is your $EDITOR set?");
 }
-/*
-07:47 - 10:00 [On-boarding]
-10:00 - 12:00 [Gyros - Algo integration draft plan]
-12:15 -
-* */
+
 fn print_report_for_date(input_date: String) {
     let date = Date::new(&input_date);
     if date.is_none() {
@@ -324,6 +315,18 @@ fn get_file_path_for_date(year: i32, month: u32, day: u32) -> Option<String> {
 
 fn get_todays_file_path() -> String {
     format!("{}/{}", get_todays_dir(), get_today())
+}
+
+fn create_and_write_to_file(path: &str, contents: &str) {
+    let file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(path);
+
+    if let Ok(mut file) = file {
+        let _ = file.write_all(contents.as_bytes());
+    }
 }
 
 fn parse_report_file(contents: &str) -> Option<Report> {
