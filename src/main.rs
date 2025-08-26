@@ -132,6 +132,7 @@ fn punch_out(maybe_activity: Option<String>) {
     if let Some(contents) = read_report_content_for_date(get_today()) {
         let mut split: Vec<&str> = contents.split('\n').collect();
         split.pop();
+        let contents = contents.trim_end();
         if contents.is_empty() || (split.last().is_some() && split.last().unwrap().is_empty()) {
             println!("Error: You have not punched in yet!");
             return;
@@ -265,6 +266,9 @@ fn read_report_content_for_date(input_date: String) -> Option<String> {
     if let Ok(mut file) = std::fs::File::open(full_path) {
         let mut contents = String::new();
         let _ = file.read_to_string(&mut contents);
+        if contents.ends_with('\n') {
+            println!("Ends with newline");
+        }
         return Some(contents);
     }
     None
