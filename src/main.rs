@@ -266,9 +266,6 @@ fn read_report_content_for_date(input_date: String) -> Option<String> {
     if let Ok(mut file) = std::fs::File::open(full_path) {
         let mut contents = String::new();
         let _ = file.read_to_string(&mut contents);
-        if contents.ends_with('\n') {
-            println!("Ends with newline");
-        }
         return Some(contents);
     }
     None
